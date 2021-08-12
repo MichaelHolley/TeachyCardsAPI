@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TeachyCardsAPI.Data.Dtos
 {
-	public class PostCardDto
+	public record PostCardDto
 	{
 		[Key]
 		public Guid Id { get; set; }

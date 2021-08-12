@@ -2,7 +2,7 @@
 
 namespace TeachyCardsAPI.Data.Dtos
 {
-	public class CardDto
+	public record CardDto
 	{
 		public Guid Id { get; set; }
 
