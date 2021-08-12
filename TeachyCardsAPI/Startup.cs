@@ -1,18 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
 using TeachyCardsAPI.Data;
+using TeachyCardsAPI.Settings;
 
 namespace TeachyCardsAPI
 {
@@ -28,7 +24,15 @@ namespace TeachyCardsAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddDbContext<DataContext>(options => options.UseSqlite("Data Source=teachycards.db"));
+			BsonSerializer.RegisterSerializer(new GuidSerializer(MongoDB.Bson.BsonType.String));
+
+			services.AddSingleton<IMongoClient>(serviceProvider =>
+			{
+				var settings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+				return new MongoClient(settings.ConnectionString);
+			});
+
+			services.AddSingleton<ICardsRepository, MongoDbCardsRepository>();
 
 			services.AddControllers();
 			services.AddSwaggerGen(c =>

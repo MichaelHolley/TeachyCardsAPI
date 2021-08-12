@@ -1,92 +1,67 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TeachyCardsAPI.Data;
+using TeachyCardsAPI.Data.Dtos;
+using TeachyCardsAPI.Data.Modells;
 
 namespace TeachyCardsAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CardsController : ControllerBase
-    {
-        private readonly DataContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class CardsController : ControllerBase
+	{
+		private readonly ICardsRepository repository;
 
-        public CardsController(DataContext context)
-        {
-            _context = context;
-        }
+		public CardsController(ICardsRepository repository)
+		{
+			this.repository = repository;
+		}
 
-        // GET: api/Cards
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Card>>> GetCards(string search = "")
-        {
-            var cards = await _context.Cards.Where(c => c.Question.ToLower().Contains(search.ToLower()) || c.Answer.ToLower().Contains(search.ToLower())).ToListAsync();
-            return cards;
-        }
+		[HttpGet]
+		public ActionResult<IEnumerable<CardDto>> GetCards(string search = "")
+		{
+			return Ok(repository.GetCards(search));
+		}
 
-        // GET: api/Cards/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Card>> GetCard(Guid id)
-        {
-            var card = await _context.Cards.FindAsync(id);
+		[HttpGet("{id}")]
+		public ActionResult<CardDto> GetCard(Guid id)
+		{
+			var card = repository.GetCard(id);
 
-            if (card == null)
-            {
-                return NotFound();
-            }
+			if (card == null)
+			{
+				return NotFound();
+			}
 
-            return card;
-        }
+			return Ok(card.AsDto());
+		}
 
-        // PUT: api/Cards/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCard(Guid id, Card card)
-        {
-            if (id != card.Id)
-            {
-                return BadRequest();
-            }
+		[HttpPost]
+		public ActionResult<CardDto> PostCard([FromBody] PostCardDto card)
+		{
+			if (ModelState.IsValid)
+			{
+				var existingCard = repository.GetCard(card.Id);
 
-            _context.Entry(card).State = EntityState.Modified;
+				if (existingCard != null)
+				{
+					existingCard.Question = card.Question;
+					existingCard.Answer = card.Answer;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CardExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+					repository.UpdateCard(existingCard);
+				}
+				else
+				{
+					repository.CreateCard(new Card() { Question = card.Question, Answer = card.Answer, Created = DateTime.Now });
+				}
 
-            return NoContent();
-        }
-
-        // POST: api/Cards
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Card>> PostCard(Card card)
-        {
-            _context.Cards.Add(card);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCard", new { id = card.Id }, card);
-        }
-
-        private bool CardExists(Guid id)
-        {
-            return _context.Cards.Any(e => e.Id == id);
-        }
-    }
+				return CreatedAtAction("GetCard", new { id = card.Id }, card);
+			}
+			else
+			{
+				return BadRequest();
+			}
+		}
+	}
 }
