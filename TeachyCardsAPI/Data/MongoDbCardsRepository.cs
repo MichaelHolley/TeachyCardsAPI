@@ -40,8 +40,15 @@ namespace TeachyCardsAPI.Data
 
 		public ICollection<Card> GetCards(string search = null)
 		{
-			var filter = filterBuilder.Where(c => c.Answer.Contains(search) || c.Question.Contains(search));
-			return cardsCollections.Find(filter).ToList();
+			if (search != null)
+			{
+				var filter = filterBuilder.Where(c => c.Answer.Contains(search) || c.Question.Contains(search));
+				return cardsCollections.Find(filter).ToList();
+			}
+			else
+			{
+				return cardsCollections.Find(new BsonDocument()).ToList();
+			}
 		}
 
 		public void UpdateCard(Card card)

@@ -13,13 +13,14 @@ namespace TeachyCardsAPI.Data.Dtos
 				Id = card.Id,
 				Question = card.Question,
 				Answer = card.Answer,
+				Tags = card.Tags,
 				Created = card.Created
 			};
 		}
 
-		public static ICollection<CardDto> AsDto(this ICollection<Card> card)
+		public static ICollection<CardDto> AsDto(this ICollection<Card> cards)
 		{
-			return card.Select(c => c.AsDto()).ToList();
+			return cards.Select(c => c.AsDto()).ToList();
 		}
 	}
 }

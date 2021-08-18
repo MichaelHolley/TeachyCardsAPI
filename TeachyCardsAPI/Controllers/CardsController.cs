@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TeachyCardsAPI.Data;
 using TeachyCardsAPI.Data.Dtos;
 using TeachyCardsAPI.Data.Modells;
@@ -11,23 +12,31 @@ namespace TeachyCardsAPI.Controllers
 	[ApiController]
 	public class CardsController : ControllerBase
 	{
-		private readonly ICardsRepository repository;
+		private readonly ICardsRepository cardRepository;
 
-		public CardsController(ICardsRepository repository)
+		public CardsController(ICardsRepository cardsRepository)
 		{
-			this.repository = repository;
+			this.cardRepository = cardsRepository;
 		}
 
 		[HttpGet]
-		public ActionResult<IEnumerable<CardDto>> GetCards(string search = "")
+		public ActionResult<IEnumerable<CardDto>> GetCards(string search = null)
 		{
-			return Ok(repository.GetCards(search));
+			return Ok(cardRepository.GetCards(search));
+		}
+
+		[HttpGet("[action]")]
+		public ActionResult<IEnumerable<string>> GetTags()
+		{
+			var cards = cardRepository.GetCards();
+			var tags = cards.SelectMany(c => c.Tags);
+			return Ok(tags);
 		}
 
 		[HttpGet("{id}")]
 		public ActionResult<CardDto> GetCard(Guid id)
 		{
-			var card = repository.GetCard(id);
+			var card = cardRepository.GetCard(id);
 
 			if (card == null)
 			{
@@ -38,24 +47,31 @@ namespace TeachyCardsAPI.Controllers
 		}
 
 		[HttpPost]
-		public ActionResult<CardDto> PostCard([FromBody] PostCardDto card)
+		public ActionResult<CardDto> CreateCard([FromBody] CreateCardDto card)
 		{
 			if (ModelState.IsValid)
 			{
-				var existingCard = repository.GetCard(card.Id);
+				var newCard = new Card() { Question = card.Question, Answer = card.Answer, Tags = card.Tags, Created = DateTime.Now };
+				cardRepository.CreateCard(newCard);
+				return Ok();
+			}
+			else
+			{
+				return BadRequest(ModelState);
+			}
+		}
 
-				if (existingCard != null)
-				{
-					existingCard.Question = card.Question;
-					existingCard.Answer = card.Answer;
+		[HttpPut]
+		public ActionResult<CardDto> UpdateCard([FromBody] UpdateCardDto card)
+		{
+			var existingCard = cardRepository.GetCard(card.Id);
+			if (ModelState.IsValid && existingCard != null)
+			{
+				existingCard.Question = card.Question;
+				existingCard.Answer = card.Answer;
+				existingCard.Tags = card.Tags;
 
-					repository.UpdateCard(existingCard);
-				}
-				else
-				{
-					repository.CreateCard(new Card() { Question = card.Question, Answer = card.Answer, Created = DateTime.Now });
-				}
-
+				cardRepository.UpdateCard(existingCard);
 				return Ok();
 			}
 			else
