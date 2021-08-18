@@ -56,7 +56,7 @@ namespace TeachyCardsAPI.Controllers
 					repository.CreateCard(new Card() { Question = card.Question, Answer = card.Answer, Created = DateTime.Now });
 				}
 
-				return CreatedAtAction("GetCard", new { id = card.Id }, card);
+				return Ok();
 			}
 			else
 			{
