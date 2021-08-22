@@ -29,7 +29,7 @@ namespace TeachyCardsAPI.Controllers
 		public ActionResult<IEnumerable<string>> GetTags()
 		{
 			var cards = cardRepository.GetCards();
-			var tags = cards.SelectMany(c => c.Tags);
+			var tags = cards.SelectMany(c => c.Tags).Distinct();
 			return Ok(tags);
 		}
 
