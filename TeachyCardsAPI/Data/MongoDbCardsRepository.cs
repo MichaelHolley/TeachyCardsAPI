@@ -38,16 +38,32 @@ namespace TeachyCardsAPI.Data
 			return cardsCollections.Find(filter).SingleOrDefault();
 		}
 
-		public ICollection<Card> GetCards(string search = null)
+		public ICollection<Card> GetCards(string search = null, string tagSearch = null)
 		{
-			if (search != null)
+			if (!string.IsNullOrEmpty(search))
 			{
-				var filter = filterBuilder.Where(c => c.Answer.Contains(search) || c.Question.Contains(search));
-				return cardsCollections.Find(filter).ToList();
+				if (!string.IsNullOrEmpty(tagSearch))
+				{
+					var filter = filterBuilder.Where(c => (c.Answer.ToLower().Contains(search.ToLower()) || c.Question.ToLower().Contains(search.ToLower())) && c.Tags.Contains(tagSearch));
+					return cardsCollections.Find(filter).ToList();
+				}
+				else
+				{
+					var filter = filterBuilder.Where(c => c.Answer.ToLower().Contains(search.ToLower()) || c.Question.ToLower().Contains(search.ToLower()));
+					return cardsCollections.Find(filter).ToList();
+				}
 			}
 			else
 			{
-				return cardsCollections.Find(new BsonDocument()).ToList();
+				if (!string.IsNullOrEmpty(tagSearch))
+				{
+					var filter = filterBuilder.Where(c => c.Tags.Contains(tagSearch));
+					return cardsCollections.Find(filter).ToList();
+				}
+				else
+				{
+					return cardsCollections.Find(new BsonDocument()).ToList();
+				}
 			}
 		}
 

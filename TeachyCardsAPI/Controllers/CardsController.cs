@@ -20,9 +20,9 @@ namespace TeachyCardsAPI.Controllers
 		}
 
 		[HttpGet]
-		public ActionResult<IEnumerable<CardDto>> GetCards(string search = null)
+		public ActionResult<IEnumerable<CardDto>> GetCards(string search = null, string tagSearch = null)
 		{
-			return Ok(cardRepository.GetCards(search));
+			return Ok(cardRepository.GetCards(search, tagSearch));
 		}
 
 		[HttpGet("[action]")]

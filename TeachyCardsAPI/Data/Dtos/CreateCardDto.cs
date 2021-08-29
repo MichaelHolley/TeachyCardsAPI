@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace TeachyCardsAPI.Data.Dtos
@@ -11,6 +12,6 @@ namespace TeachyCardsAPI.Data.Dtos
 		[Required]
 		public string Answer { get; set; }
 
-		public ICollection<string> Tags { get; set; }
+		public ICollection<string> Tags { get; set; } = new List<string>();
 	}
 }
