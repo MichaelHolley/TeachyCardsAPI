@@ -13,6 +13,8 @@ namespace TeachyCardsAPI.Data.Dtos
 
 		public ICollection<string> Tags { get; set; }
 
+		public ICollection<Guid> ImageIds { get; set; }
+
 		public DateTime Created { get; set; }
 	}
 }

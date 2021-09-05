@@ -13,5 +13,7 @@ namespace TeachyCardsAPI.Data.Modells
 		public string Answer { get; set; }
 
 		public ICollection<string> Tags { get; set; } = new List<string>();
+
+		public ICollection<Guid> ImageIds { get; set; } = new List<Guid>();
 	}
 }

@@ -14,6 +14,7 @@ namespace TeachyCardsAPI.Data.Dtos
 				Question = card.Question,
 				Answer = card.Answer,
 				Tags = card.Tags,
+				ImageIds = card.ImageIds,
 				Created = card.Created
 			};
 		}

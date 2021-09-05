@@ -33,6 +33,7 @@ namespace TeachyCardsAPI
 			});
 
 			services.AddSingleton<ICardsRepository, MongoDbCardsRepository>();
+			services.AddSingleton<IConfiguration>(Configuration);
 
 			services.AddControllers();
 			services.AddSwaggerGen(c =>

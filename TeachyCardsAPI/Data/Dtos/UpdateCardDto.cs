@@ -16,5 +16,7 @@ namespace TeachyCardsAPI.Data.Dtos
 		public string Answer { get; set; }
 
 		public ICollection<string> Tags { get; set; }
+
+		public ICollection<Guid> ImageIds { get; set; } = new List<Guid>();
 	}
 }
